@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Excel İndirme</title>
+  <!-- jsPDF ve ExcelJS kütüphanelerini dahil etme alanı -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"
+    integrity="sha512-z8IYLHO8bTgFqj+yrPyIJnzBDf7DDhWwiEsk4sY+Oe6J2M+WQequeGS7qioI5vT6rXgVRb4K1UVQC5ER7MKzKQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+  <link rel="stylesheet" href="app.css">
+</head>
+
+<body>
+
+  <button id="downloadButton">Excel İndir</button><br><br><br>
+
+  <a href="pdf.html"> PDF indirmek için tıklayınız...
+  </a>
+
+
+  <script>
+   document.getElementById('downloadButton').addEventListener('click', async function () {
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('Sheet 1');
+
+  // İçerik - form
+  worksheet.getCell('A1').value = 'Bu bir deneme Excel dosyasıdır.';
+
+  // Watermark çizme
+  const canvas = document.createElement('canvas');
+  canvas.width = 1200;
+  canvas.height = 800;
+  const context = canvas.getContext('2d');
+  context.font = 'bold 70px Arial';
+  context.fillStyle = 'rgba(0, 0, 0, 0.08)';
+  context.textAlign = 'center';
+  context.textBaseline = 'middle';
+  context.translate(canvas.width / 2, canvas.height / 2);
+  context.rotate((-45 * Math.PI) / 180);
+  context.fillText('4362133180820232300', 0, 0);
+  
+  // Watermark resmini veri URL'sine dönüştürme
+  const watermarkDataURL = canvas.toDataURL('image/png');
+
+  // Watermark resmini ekleme
+  // Watermark sadece birinci sayfada oluyor ikinci sayfada olmuyor 
+  const watermarkImage = await workbook.addImage({
+    base64: watermarkDataURL,
+    extension: 'png',
+  });
+  worksheet.addImage(watermarkImage, {
+    tl: { col: 0, row: 12 },
+    br: { col: 10, row: 30 },
+    editAs: 'oneCell',
+  });
+
+  // Alt ve üst bilgi ekleme
+  //Pbik no ya da başka bi id çekilecek
+  worksheet.headerFooter.oddFooter = '436213318082023';
+  worksheet.headerFooter.oddHeader = '436213318082023';
+  // Excel dosyasını indirme işlemi
+  const excelBlob = await workbook.xlsx.writeBuffer();
+  const excelBlobURL = URL.createObjectURL(new Blob([excelBlob], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+  const link = document.createElement('a');
+  link.href = excelBlobURL;
+  link.download = 'watermarked_excel.xlsx'; // İndirilen dosyanın adı
+  document.body.appendChild(link);
+
+  // İndirme işlemini başlat
+  link.click();
+});
+
+
+
+  </script>
+
+</body>
+
+</html>

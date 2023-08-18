@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>PDF Alt Bilgi Ekleme</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"
+    integrity="sha512-z8IYLHO8bTgFqj+yrPyIJnzBDf7DDhWwiEsk4sY+Oe6J2M+WQequeGS7qioI5vT6rXgVRb4K1UVQC5ER7MKzKQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+      <link rel="stylesheet" href="app.css">
+</head>
+
+<body>
+
+  <button id="downloadButton">PDF Dosyasını İndir</button><br><br><br>
+  <a href="index.html"> Excel dosyası indirmek için tıklayınız...</a>
+
+  <script>
+    document.getElementById('downloadButton').addEventListener('click', async function () {
+      // PDF oluşturulması
+      const pdfDoc = await PDFLib.PDFDocument.create();
+      const page = pdfDoc.addPage([600, 900]);
+
+      // Alt bilgi eklenmesi
+      const fontSize = 11;
+      const textOptions = {
+        size: fontSize,
+        font: await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica),
+        color: PDFLib.rgb(0, 0, 0),
+      };
+
+      const pageHeight = page.getHeight();
+      const textWidth = fontSize * 8; // Örnek bir genişlik
+      const textX = (page.getWidth() - textWidth) / 1;
+      //Kullanıcı PBİK ya da ID çekilecek
+      page.drawText('436213318082023', {
+        x: textX,
+        y: 10,
+        ...textOptions,
+      });
+
+   
+      // PDF dosya içeriği ayarları
+      page.drawText('Bu bir metin içerigidir.', {
+        x: 50,
+        y: pageHeight - 100,
+        size: 14,
+        font: await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica),
+        color: PDFLib.rgb(0, 0, 0),
+      });
+
+      // PDF dosyasını indirme işlemi
+      const pdfBytes = await pdfDoc.save();
+      const pdfBlobURL = URL.createObjectURL(new Blob([pdfBytes], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = pdfBlobURL;
+      link.download = 'pdf_with_centered_header_footer.pdf'; // İndirilen dosyanın adı
+      document.body.appendChild(link);
+
+      // İndirme işlemini başlatın
+      link.click();
+
+      // Kullanılmayan URL'leri temizleyin
+      setTimeout(function () {
+        URL.revokeObjectURL(pdfBlobURL);
+      }, 1000);
+    });
+  </script>
+
+</body>
+
+</html>
